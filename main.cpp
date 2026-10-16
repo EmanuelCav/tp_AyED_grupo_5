@@ -1,57 +1,76 @@
 #include <iostream>
-#include <string>
-#include <string.h>
-#include "funciones.hpp"
+#include <stdio.h>
+
 using namespace std;
 
+struct Vacuna {
+	char nombreVacuna[30];
+	int fecha;
+	char estado; // 'S': aplicado o 'P': pendiente
+};
 
-int main(int argc, char** argv) {
-	Nodo* lista = NULL;
+struct NodoVacuna {
+    Vacuna info;
+    NodoVacuna *sgte;
+};
+
+struct Paciente {
+    char nombre[30];
+    int edad;
+    char estadoSalud; // 'S': sano, 'E': enfermo
+    NodoVacuna *historialVacunacion;
+};
+
+struct NodoPaciente {
+    Paciente info;
+    NodoPaciente *sgte;
+};
+
+struct NodoCola {
+    Paciente info;
+    NodoCola *sgte;
+};
+
+struct Cola {
+    NodoCola *p;
+    NodoCola *q;
+};
+
+// DESPUES PODEMOS CREAR FUNCIONES O USAR LAS FUNCIONES DE LA CÁTEDRA
+
+int main() {
 	
-	agregarNodo(lista, 1);
-	agregarNodo(lista, 10);
-	agregarNodo(lista, 25);
-	agregarNodo(lista, 50);
-	agregarNodo(lista, 100);
-	agregarNodo(lista, 500);
+	FILE* archivo = fopen("PACIENTES.dat", "rb");
 	
-	//mostrar(lista);
+	Paciente paciente;
+	NodoPaciente *lista = NULL;
 	
-	/*Nodo* buscado = buscar(lista,200);
+	fread(&paciente, sizeof(struct Paciente), 1, archivo);
 	
-	if(buscado == NULL){
-		cout << "El valor no esta en la lista" << endl;
-	} else {
-		cout << "El valor " << buscado->info << " esta en la lista" << endl;
+	while(!feof(archivo)) {
+		
+		bool pendiente = false;
+        NodoVacuna *aux = paciente.historialVacunacion;
+
+        while (aux != NULL && !pendiente) {
+            if (aux->info.estado == 'P') {
+                pendiente = true;
+            }
+
+            aux = aux->sgte;
+        }
+
+        if (pendiente) {
+            NodoPaciente *nuevo = new NodoPaciente;
+            nuevo->info = paciente;
+            nuevo->sgte = lista;
+            lista = nuevo;
+        }
+        
+        fread(&paciente, sizeof(struct Paciente), 1, archivo);
 	}
-	*/
 	
-	//eliminar(lista,20);
-	/*int valorEliminado = eliminarPrimerNodo(lista);
-	cout << "Se elimino el valor " << valorEliminado << endl;
-	mostrar(lista);
-	*/
+	fclose(archivo);
 	
-	/*Nodo* nodoInsertado = insertarOrdenado(lista,15);
-	
-	cout << "El nro " << nodoInsertado->info << " fue insertado correctamente" << endl;
-	
-	mostrar(lista);*/
-	
-	//ordenar(lista);
-	//mostrar(lista);
-	
-	bool enc;
-	
-	Nodo* nodoBuscado = buscaEInsertaOrdenado(lista,700,enc);
-	
-	if(enc){
-		cout << "El nro " << nodoBuscado->info << " ya estaba en la lista" << endl;
-	} else {
-		cout << "El nro " << nodoBuscado->info << " fue insertado en la lista" << endl;
-	}
-	
-	mostrar(lista);
-	
-    return 0;
+	return 0;
 }
