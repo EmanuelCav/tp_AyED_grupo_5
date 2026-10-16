@@ -38,6 +38,8 @@ struct Cola {
 
 // DESPUES PODEMOS CREAR FUNCIONES O USAR LAS FUNCIONES DE LA CÁTEDRA
 
+void agregarNodo(NodoPaciente*& p, Paciente x);
+
 int main() {
 	
 	FILE* archivo = fopen("PACIENTES.dat", "rb");
@@ -61,10 +63,7 @@ int main() {
         }
 
         if (pendiente) {
-            NodoPaciente *nuevo = new NodoPaciente;
-            nuevo->info = paciente;
-            nuevo->sgte = lista;
-            lista = nuevo;
+            agregarNodo(lista, paciente);
         }
         
         fread(&paciente, sizeof(struct Paciente), 1, archivo);
@@ -73,4 +72,24 @@ int main() {
 	fclose(archivo);
 	
 	return 0;
+}
+
+void agregarNodo(NodoPaciente*& p, Paciente x) {
+
+    NodoPaciente* nuevo = new NodoPaciente;
+    nuevo->info = x;
+    nuevo->sgte = NULL;
+
+    if (p == NULL) {
+        p = nuevo;
+    } else {
+    	
+        NodoPaciente* aux = p;
+        
+        while (aux->sgte != NULL) {
+            aux = aux->sgte;
+        }
+        
+        aux->sgte = nuevo;
+    }
 }
