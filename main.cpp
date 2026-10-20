@@ -134,6 +134,27 @@ int main() {
 	return 0;
 }
 
+
+void agregarNodo(NodoPaciente*& p, Paciente x) {
+
+    NodoPaciente* nuevo = new NodoPaciente;
+    nuevo->info = x;
+    nuevo->sgte = NULL;
+
+    if (p == NULL) {
+        p = nuevo;
+    } else {
+    	
+        NodoPaciente* aux = p;
+        
+        while (aux->sgte != NULL) {
+            aux = aux->sgte;
+        }
+        
+        aux->sgte = nuevo;
+    }
+}
+
 void mostrar(NodoPaciente* p) {
     NodoPaciente* aux = p;
 
