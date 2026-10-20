@@ -21,6 +21,13 @@ struct Paciente {
     NodoVacuna *historialVacunacion;
 };
 
+struct PacienteArchivo {
+    char nombre[30];
+    int edad;
+    char estadoSalud;
+    int cantidadVacunas;
+};
+
 struct NodoPaciente {
     Paciente info;
     NodoPaciente *sgte;
@@ -42,32 +49,57 @@ int main() {
 	// PUNTO 1
 	
 	FILE* archivo = fopen("PACIENTES.dat", "rb");
-	
+
 	Paciente paciente;
+	PacienteArchivo pacienteArchivo;
+	Vacuna vacuna;
+
 	NodoPaciente *lista = NULL;
 	
-	fread(&paciente, sizeof(struct Paciente), 1, archivo);
-	
-	while(!feof(archivo)) {
-		
-		bool pendiente = false;
-        NodoVacuna *aux = paciente.historialVacunacion;
+	fread(&pacienteArchivo, sizeof(PacienteArchivo), 1, archivo);
 
-        while (aux != NULL && !pendiente) {
-            if (aux->info.estado == 'P') {
-                pendiente = true;
-            }
+	while (!feof(archivo)) {
 
-            aux = aux->sgte;
-        }
+    strcpy(paciente.nombre, pacienteArchivo.nombre);
+    paciente.edad = pacienteArchivo.edad;
+    paciente.estadoSalud = pacienteArchivo.estadoSalud;
+    paciente.historialVacunacion = NULL;
 
-        if (pendiente) {
-            agregarNodo(lista, paciente);
-        }
-        
-        fread(&paciente, sizeof(struct Paciente), 1, archivo);
+    for (int i = 0; i < pacienteArchivo.cantidadVacunas; i++) {
+
+        	fread(&vacuna, sizeof(Vacuna), 1, archivo);
+
+        	NodoVacuna *nuevo = new NodoVacuna;
+        	nuevo->info = vacuna;
+        	nuevo->sgte = paciente.historialVacunacion;
+        	paciente.historialVacunacion = nuevo;
+	    }
+
+    	bool pendiente = false;
+    	NodoVacuna *aux = paciente.historialVacunacion;
+
+    	while (aux != NULL && !pendiente) {
+
+        	if (aux->info.estado == 'P') {
+            	pendiente = true;
+        	}
+
+        	aux = aux->sgte;
+    	}
+
+    	if (pendiente) {
+        	agregarNodo(lista, paciente);
+    	}
+
+    	while (paciente.historialVacunacion != NULL) {
+        	NodoVacuna *aux = paciente.historialVacunacion;
+        	paciente.historialVacunacion = paciente.historialVacunacion->sgte;
+        	delete aux;
+	    }
+	    
+	    fread(&pacienteArchivo, sizeof(PacienteArchivo), 1, archivo);
 	}
-	
+
 	fclose(archivo);
 	
 	mostrar(lista);
@@ -125,7 +157,6 @@ int main() {
 	
 	while (p != NULL) {
         paciente = suprimir(p, q);
-        cout<<"Paciente atendido: "<<paciente.nombre<<endl;
         pacientesAtendidos++;
     }
 
